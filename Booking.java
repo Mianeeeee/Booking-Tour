@@ -69,7 +69,7 @@ public class Booking extends JFrame {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
-        JPanel panel = new JPanel(new GridLayout(6, 1, 10, 10));
+        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         panel.add(new JLabel("Mã đặt tour: " + this.bookingId));
@@ -118,3 +118,4 @@ public class Booking extends JFrame {
         return bookingState;
     }
 }
+
