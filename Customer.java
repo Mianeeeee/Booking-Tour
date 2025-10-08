@@ -108,4 +108,56 @@ public class Customer {
     public String getEmail() {
         return this.Email;
     }
+
+    public static String findIdByInfo(String name, String birthday, String phone, String email) {
+        String sql = "SELECT id FROM customers WHERE name = ? AND birthday = ? AND phoneNumber = ? AND email = ?";
+
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, name);
+            stmt.setString(2, birthday);
+            stmt.setString(3, phone);
+            stmt.setString(4, email);
+
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("id");
+            } else {
+                return null; // không tìm thấy
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi tìm Id: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public static Customer findCustomerById(String id) {
+        String sql = "SELECT id, name, birthday, phoneNumber, email FROM customers WHERE id = ?";
+
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String name = rs.getString("name");
+                String birthday = rs.getString("birthday");
+                String phone = rs.getString("phoneNumber");
+                String email = rs.getString("email");
+
+                Customer c = new Customer(name, birthday, phone, email);
+                c.Id = id;
+                return c;
+            } else {
+                return null;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi tìm Customer theo ID: " + e.getMessage());
+            return null;
+        }
+    }
 }
