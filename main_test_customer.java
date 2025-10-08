@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 
 public class main_test_customer extends JFrame {
     public static void main(String[] args) {
+
+// *
         String url = "jdbc:mysql://localhost:3306/customer_db_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
         String user = "root";
         String pass = "miane7755nW";
@@ -14,15 +16,16 @@ public class main_test_customer extends JFrame {
             Class.forName("com.mysql.cj.jdbc.Driver");
 
             Connection conn = DriverManager.getConnection(url, user, pass);
-            System.out.println("✅ Kết nối MySQL thành công!");
+            System.out.println("Kết nối MySQL thành công!");
             conn.close();
         } catch (Exception e) {
-            System.out.println("❌ Kết nối thất bại: " + e.getMessage());
+            System.out.println("Kết nối thất bại: " + e.getMessage());
         }
+// *
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new main_test_customer();
-            frame.setTitle("Nhập thông tin Customer");
+            frame.setTitle("Quản lý khách hàng");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             JPanel content = new JPanel(new BorderLayout(10, 10));
@@ -38,49 +41,54 @@ public class main_test_customer extends JFrame {
             JLabel lblBirthday = new JLabel("Birthday:");
             JLabel lblPhone = new JLabel("Phone Number:");
             JLabel lblEmail = new JLabel("Email:");
+            JLabel lblIdSearch = new JLabel("Search by ID:");
 
             JTextField txtName = new JTextField(20);
             JTextField txtBirthday = new JTextField(20);
             JTextField txtPhone = new JTextField(20);
             JTextField txtEmail = new JTextField(20);
+            JTextField txtSearchId = new JTextField(20);
 
             c.gridx = 0;
             c.gridy = 1;
-            c.weightx = 0;
             form.add(lblName, c);
             c.gridx = 1;
-            c.weightx = 1.0;
             form.add(txtName, c);
 
             c.gridx = 0;
             c.gridy = 2;
-            c.weightx = 0;
             form.add(lblBirthday, c);
             c.gridx = 1;
-            c.weightx = 1.0;
             form.add(txtBirthday, c);
 
             c.gridx = 0;
             c.gridy = 3;
-            c.weightx = 0;
             form.add(lblPhone, c);
             c.gridx = 1;
-            c.weightx = 1.0;
             form.add(txtPhone, c);
 
             c.gridx = 0;
             c.gridy = 4;
-            c.weightx = 0;
             form.add(lblEmail, c);
             c.gridx = 1;
-            c.weightx = 1.0;
             form.add(txtEmail, c);
+
+            c.gridx = 0;
+            c.gridy = 5;
+            form.add(lblIdSearch, c);
+            c.gridx = 1;
+            form.add(txtSearchId, c);
 
             JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
             JButton btnSave = new JButton("Lưu");
             JButton btnCancel = new JButton("Hủy");
+            JButton btnFindId = new JButton("Tìm ID");
+            JButton btnFindInfo = new JButton("Tìm thông tin");
+
             buttons.add(btnCancel);
             buttons.add(btnSave);
+            buttons.add(btnFindId);
+            buttons.add(btnFindInfo);
 
             content.add(form, BorderLayout.CENTER);
             content.add(buttons, BorderLayout.SOUTH);
@@ -103,11 +111,51 @@ public class main_test_customer extends JFrame {
                     return;
                 }
 
+// *
                 Customer customer = new Customer(name, birthday, phone, email);
+// *
+
                 JOptionPane.showMessageDialog(frame, "Đã lưu thông tin:\n\n" + customer.toString(), "Hoàn tất",
                         JOptionPane.INFORMATION_MESSAGE);
                 System.out.println(customer);
                 frame.dispose();
+            });
+
+            btnFindId.addActionListener(e -> {
+                String name = txtName.getText().trim();
+                String birthday = txtBirthday.getText().trim();
+                String phone = txtPhone.getText().trim();
+                String email = txtEmail.getText().trim();
+
+                String id = Customer.findIdByInfo(name, birthday, phone, email);
+                if (id != null) {
+                    JOptionPane.showMessageDialog(frame, "ID khách hàng là: " + id, "Kết quả",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Không tìm thấy khách hàng!", "Kết quả",
+                            JOptionPane.WARNING_MESSAGE);
+                }
+            });
+
+            btnFindInfo.addActionListener(e -> {
+                String id = txtSearchId.getText().trim();
+                if (id.isEmpty()) {
+                    JOptionPane.showMessageDialog(frame, "Vui lòng nhập ID để tìm!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                Customer cst = Customer.findCustomerById(id);
+                if (cst != null) {
+                    txtName.setText(cst.getName());
+                    txtBirthday.setText(cst.getBirthday());
+                    txtPhone.setText(cst.getPhoneNumber());
+                    txtEmail.setText(cst.getEmail());
+                    JOptionPane.showMessageDialog(frame, "Đã tải thông tin khách hàng!", "Kết quả",
+                            JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(frame, "Không tìm thấy khách hàng!", "Kết quả",
+                            JOptionPane.WARNING_MESSAGE);
+                }
             });
 
             btnCancel.addActionListener(e -> frame.dispose());
