@@ -1,106 +1,92 @@
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.sql.*;
 
-import java.util.HashMap;
-import java.util.Map;
+public class Customer {
+    private static final String URL = "jdbc:mysql://localhost:3306/customer_db_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    private static final String USER = "root";
+    private static final String PASSWORD = "miane7755nW";
 
-public class Customer extends JFrame {
-    private static int nextId = 1;
-    private static Map<String, Customer> customersById = new HashMap<>();
     private String Id;
     private String Name;
     private String Birthday;
-    private String phoneNumber;
+    private String Phone_Number;
     private String Email;
 
-    // Hàm khởi tạo với tất cả các tham số
-    public Customer(String Id, String Name, String Birthday, String phoneNumber, String Email) {
-        this.Id = Id;
-        this.Name = Name;
+    private static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
 
-        // Chuẩn hóa Birthday theo định dạng dd/mm/yyyy
-        if (Birthday != null && Birthday.matches("\\d{2}/\\d{2}/\\d{4}")) {
-            this.Birthday = Birthday;
-        } else {
-            // Nếu không đúng định dạng, gán giá trị rỗng hoặc xử lý khác tùy ý
-            this.Birthday = "";
+    private static String generateNextId(Connection conn) throws SQLException {
+        String sql = "SELECT MAX(id) AS max_id FROM customers";
+        try (PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
+
+            if (rs.next() && rs.getString("max_id") != null) {
+                String lastId = rs.getString("max_id");
+                int num = Integer.parseInt(lastId.substring(2));
+                return String.format("KH%03d", num + 1);
+            } else {
+                return "KH001";
+            }
+        }
+    }
+
+    private static String normalizeBirthday(String birthday) {
+        if (birthday == null || birthday.isEmpty()) {
+            return null;
         }
 
-        this.phoneNumber = phoneNumber;
-        this.Email = Email;
+        birthday = birthday.trim().replace("/", "-");
 
-        // Lưu khách hàng vào bản đồ để có thể tìm kiếm sau này
-        customersById.put(this.Id, this);
-    }
-
-    // Hàm khởi tạo mặc định
-    public Customer() {
-        this.Id = String.format("KH%03d", Customer.nextId++);
-        this.Name = "";
-        this.Birthday = "";
-        this.phoneNumber = "";
-        this.Email = "";
-
-        // Lưu khách hàng vào bản đồ để có thể tìm kiếm sau này
-        customersById.put(this.Id, this);
-    }
-
-    // Hàm khởi tạo với các tham số ngoại trừ Id
-    public Customer(String Name, String Birthday, String phoneNumber, String Email) {
-        this.Id = String.format("KH%03d", Customer.nextId++);
-        this.Name = Name;
-
-        // Chuẩn hóa Birthday theo định dạng dd/mm/yyyy
-        if (Birthday != null && Birthday.matches("\\d{2}/\\d{2}/\\d{4}")) {
-            this.Birthday = Birthday;
-        } else {
-            // Nếu không đúng định dạng, gán giá trị rỗng hoặc xử lý khác tùy ý
-            this.Birthday = "";
+        if (birthday.matches("\\d{4}-\\d{2}-\\d{2}")) {
+            return birthday;
         }
 
-        this.phoneNumber = phoneNumber;
+        if (birthday.matches("\\d{2}-\\d{2}-\\d{4}")) {
+            String[] parts = birthday.split("-");
+            return parts[2] + "-" + parts[1] + "-" + parts[0];
+        }
+
+        if (birthday.matches("\\d{8}")) {
+            String day = birthday.substring(0, 2);
+            String month = birthday.substring(2, 4);
+            String year = birthday.substring(4);
+            return year + "-" + month + "-" + day;
+        }
+
+        return null;
+    }
+
+    public Customer(String Name, String Birthday, String Phone_Number, String Email) {
+        this.Name = Name;
+
+        this.Birthday = normalizeBirthday(Birthday);
+
+        this.Phone_Number = Phone_Number;
+
         this.Email = Email;
 
-        // Lưu khách hàng vào bản đồ để có thể tìm kiếm sau này
-        customersById.put(this.Id, this);
-    }
+        String insertSql = "INSERT INTO customer_db_test.customers (id, name, birthday, phoneNumber, email) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(insertSql)) {
 
-    // Hàm khởi tạo sao chép
-    public Customer(Customer other) {
-        this.Id = other.Id;
-        this.Name = other.Name;
-        this.Birthday = other.Birthday;
-        this.phoneNumber = other.phoneNumber;
-        this.Email = other.Email;
+            this.Id = generateNextId(conn);
 
-        // Lưu khách hàng vào bản đồ để có thể tìm kiếm sau này
-        customersById.put(this.Id, this);
-    }
+            stmt.setString(1, this.Id);
+            stmt.setString(2, this.Name);
+            stmt.setString(3, this.Birthday);
+            stmt.setString(4, this.Phone_Number);
+            stmt.setString(5, this.Email);
 
-    // Hàm hiển thị thông tin khách hàng
-    public void CustomerDisplay() {
-        setTitle("Thông tin khách hàng");
-        setSize(400, 250);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
+            int rows = stmt.executeUpdate();
+            if (rows > 0) {
+                System.out.println("Thêm khách hàng thành công.");
+            } else {
+                System.out.println("Không thể thêm khách hàng.");
+            }
 
-        JPanel panel = new JPanel(new GridLayout(5, 1, 10, 10));
-        panel.setBorder(new EmptyBorder(15, 15, 15, 15));
-
-        panel.add(new JLabel("Mã khách hàng: " + this.Id));
-        panel.add(new JLabel("Họ và tên: " + this.Name));
-        panel.add(new JLabel("Ngày sinh: " + this.Birthday));
-        panel.add(new JLabel("Số điện thoại: " + this.phoneNumber));
-        panel.add(new JLabel("Email: " + this.Email));
-
-        setContentPane(panel);
-        setVisible(true);
-    }
-
-    // Tìm kiếm Customer theo Id
-    public static Customer getCustomerById(String id) {
-        return customersById.get(id);
+        } catch (SQLException e) {
+            System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
+        }
     }
 
     public String getId() {
@@ -116,7 +102,7 @@ public class Customer extends JFrame {
     }
 
     public String getPhoneNumber() {
-        return this.phoneNumber;
+        return this.Phone_Number;
     }
 
     public String getEmail() {
