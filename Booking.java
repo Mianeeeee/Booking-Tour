@@ -13,12 +13,11 @@ public class Booking {
         this.bookingState = bookingState;
     }
 
-    public Booking(String bookingId, String tourId, String customerId, String bookingDate) {
-        this.bookingId = bookingId;
+    public Booking(String tourId, String customerId, String bookingDate, String bookingState) {
         this.tourId = tourId;
         this.customerId = customerId;
         this.bookingDate = bookingDate;
-        this.bookingState = "Chưa xác nhận";
+        this.bookingState = bookingState;
     }
 
     public String getBookingId() {
@@ -39,6 +38,14 @@ public class Booking {
 
     public String getBookingState() {
         return this.bookingState;
+    }
+
+    public void setId(String bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public void setBookingState(String bookingState) {
+        this.bookingState = bookingState;
     }
 
     @Override
