@@ -1,3 +1,4 @@
+// Chỉ chứa dữ liệu khách hàng
 public class Customer {
 
     private String Id;
@@ -39,10 +40,6 @@ public class Customer {
 
     public String getEmail() {
         return this.Email;
-    }
-
-    public void setId(String id) {
-        this.Id = id;
     }
 
     @Override
