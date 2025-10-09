@@ -1,9 +1,4 @@
-import java.sql.*;
-
 public class Customer {
-    private static final String URL = "jdbc:mysql://localhost:3306/customer_db_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
-    private static final String USER = "root";
-    private static final String PASSWORD = "miane7755nW";
 
     private String Id;
     private String Name;
@@ -11,82 +6,19 @@ public class Customer {
     private String Phone_Number;
     private String Email;
 
-    private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
-
-    private static String generateNextId(Connection conn) throws SQLException {
-        String sql = "SELECT MAX(id) AS max_id FROM customers";
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-                ResultSet rs = stmt.executeQuery()) {
-
-            if (rs.next() && rs.getString("max_id") != null) {
-                String lastId = rs.getString("max_id");
-                int num = Integer.parseInt(lastId.substring(2));
-                return String.format("KH%03d", num + 1);
-            } else {
-                return "KH001";
-            }
-        }
-    }
-
-    private static String normalizeBirthday(String birthday) {
-        if (birthday == null || birthday.isEmpty()) {
-            return null;
-        }
-
-        birthday = birthday.trim().replace("/", "-");
-
-        if (birthday.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            return birthday;
-        }
-
-        if (birthday.matches("\\d{2}-\\d{2}-\\d{4}")) {
-            String[] parts = birthday.split("-");
-            return parts[2] + "-" + parts[1] + "-" + parts[0];
-        }
-
-        if (birthday.matches("\\d{8}")) {
-            String day = birthday.substring(0, 2);
-            String month = birthday.substring(2, 4);
-            String year = birthday.substring(4);
-            return year + "-" + month + "-" + day;
-        }
-
-        return null;
+    public Customer(String Id, String Name, String Birthday, String Phone_Number, String Email) {
+        this.Id = Id;
+        this.Name = Name;
+        this.Birthday = Birthday;
+        this.Phone_Number = Phone_Number;
+        this.Email = Email;
     }
 
     public Customer(String Name, String Birthday, String Phone_Number, String Email) {
         this.Name = Name;
-
-        this.Birthday = normalizeBirthday(Birthday);
-
+        this.Birthday = Birthday;
         this.Phone_Number = Phone_Number;
-
         this.Email = Email;
-
-        String insertSql = "INSERT INTO customer_db_test.customers (id, name, birthday, phoneNumber, email) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection();
-                PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-
-            this.Id = generateNextId(conn);
-
-            stmt.setString(1, this.Id);
-            stmt.setString(2, this.Name);
-            stmt.setString(3, this.Birthday);
-            stmt.setString(4, this.Phone_Number);
-            stmt.setString(5, this.Email);
-
-            int rows = stmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Thêm khách hàng thành công.");
-            } else {
-                System.out.println("Không thể thêm khách hàng.");
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
-        }
     }
 
     public String getId() {
@@ -109,55 +41,13 @@ public class Customer {
         return this.Email;
     }
 
-    public static String findIdByInfo(String name, String birthday, String phone, String email) {
-        String sql = "SELECT id FROM customers WHERE name = ? AND birthday = ? AND phoneNumber = ? AND email = ?";
-
-        try (Connection conn = getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, name);
-            stmt.setString(2, birthday);
-            stmt.setString(3, phone);
-            stmt.setString(4, email);
-
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return rs.getString("id");
-            } else {
-                return null; // không tìm thấy
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Lỗi khi tìm Id: " + e.getMessage());
-            return null;
-        }
+    public void setId(String id) {
+        this.Id = id;
     }
 
-    public static Customer findCustomerById(String id) {
-        String sql = "SELECT id, name, birthday, phoneNumber, email FROM customers WHERE id = ?";
-
-        try (Connection conn = getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setString(1, id);
-            ResultSet rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                String name = rs.getString("name");
-                String birthday = rs.getString("birthday");
-                String phone = rs.getString("phoneNumber");
-                String email = rs.getString("email");
-
-                Customer c = new Customer(name, birthday, phone, email);
-                c.Id = id;
-                return c;
-            } else {
-                return null;
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Lỗi khi tìm Customer theo ID: " + e.getMessage());
-            return null;
-        }
+    @Override
+    public String toString() {
+        return "ID: " + this.Id + "\nHọ tên: " + this.Name + "\nNgày sinh: " + this.Birthday + "\nSố điện thoại: "
+                + this.Phone_Number + "\nEmail: " + this.Email;
     }
 }
