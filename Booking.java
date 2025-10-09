@@ -1,3 +1,4 @@
+// Chỉ chứa dữ liệu Data
 public class Booking {
     private String bookingId;
     private String tourId;
@@ -38,14 +39,6 @@ public class Booking {
 
     public String getBookingState() {
         return this.bookingState;
-    }
-
-    public void setId(String bookingId) {
-        this.bookingId = bookingId;
-    }
-
-    public void setBookingState(String bookingState) {
-        this.bookingState = bookingState;
     }
 
     @Override
