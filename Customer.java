@@ -1,50 +1,79 @@
-// Chỉ chứa dữ liệu khách hàng
-public class Customer {
+import java.math.BigDecimal;
+import java.util.*;
 
-    private String Id;
-    private String Name;
-    private String Birthday;
-    private String Phone_Number;
-    private String Email;
+public class Customer extends Human {
 
-    public Customer(String Id, String Name, String Birthday, String Phone_Number, String Email) {
-        this.Id = Id;
-        this.Name = Name;
-        this.Birthday = Birthday;
-        this.Phone_Number = Phone_Number;
-        this.Email = Email;
+    private String tourBookings;
+    private String bookingState;
+    private String bookingDate;
+    private int numberOfCustomers;
+    private BigDecimal price;
+    private static Map<String, Customer> CustomerList = new HashMap<>();
+
+    public static void add(Customer customer) {
+        CustomerList.put(customer.getId(), customer);
     }
 
-    public Customer(String Name, String Birthday, String Phone_Number, String Email) {
-        this.Name = Name;
-        this.Birthday = Birthday;
-        this.Phone_Number = Phone_Number;
-        this.Email = Email;
+    public Customer() {
+        super();
+        this.tourBookings = "";
+        this.bookingState = "";
+        this.bookingDate = "";
+        this.numberOfCustomers = 0;
+        this.price = new BigDecimal("0.00");
     }
 
-    public String getId() {
-        return this.Id;
+    public Customer(String Id, String Name, String Birthday, String PhoneNumber, String Email, String tourBookings,
+            String bookingState, String bookingDate, int numberOfCustomers, BigDecimal price) {
+        super(Id, Name, Birthday, PhoneNumber, Email);
+        this.tourBookings = tourBookings;
+        this.bookingState = bookingState;
+        this.bookingDate = bookingDate;
+        this.numberOfCustomers = numberOfCustomers;
+        this.price = price;
     }
 
-    public String getName() {
-        return this.Name;
+    public String getTourBookings() {
+        return this.tourBookings;
     }
 
-    public String getBirthday() {
-        return this.Birthday;
+    public void setTourBookings(String tourBookings) {
+        this.tourBookings = tourBookings;
     }
 
-    public String getPhoneNumber() {
-        return this.Phone_Number;
+    public String getBookingState() {
+        return this.bookingState;
     }
 
-    public String getEmail() {
-        return this.Email;
+    public void setBookingState(String bookingState) {
+        this.bookingState = bookingState;
     }
 
-    @Override
-    public String toString() {
-        return "ID: " + this.Id + "\nHọ tên: " + this.Name + "\nNgày sinh: " + this.Birthday + "\nSố điện thoại: "
-                + this.Phone_Number + "\nEmail: " + this.Email;
+    public String getBookingDate() {
+        return this.bookingDate;
+    }
+
+    public void setBookingDate(String bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
+    public int getNumberOfCustomers() {
+        return this.numberOfCustomers;
+    }
+
+    public void setNumberOfCustomers(int numberOfCustomers) {
+        this.numberOfCustomers = numberOfCustomers;
+    }
+
+    public BigDecimal getPrice() {
+        return this.price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    private static Customer findById(String id) {
+        return CustomerList.get(id);
     }
 }
