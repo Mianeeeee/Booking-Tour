@@ -40,11 +40,11 @@ public class CustomerDAO {
         return null;
     }
 
-    // Tìm tourId khi biết tourName và dayStart và numberOfDay
+    // Tìm tourId khi biết tourName và dayStart và numberOfDays
     public static String findTourId(String tourName, String dayStart, double numberOfDay) {
         String tourId = null;
         try (Connection conn = getConnection()) {
-            String sql = "SELECT tourId FROM tour WHERE tourName = ? AND dayStart = ? AND numberOfDay = ?";
+            String sql = "SELECT tourId FROM tour WHERE tourName = ? AND dayStart = ? AND numberOfDays = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setString(1, tourName);
             stmt.setString(2, normalizeDate(dayStart));
@@ -95,16 +95,15 @@ public class CustomerDAO {
                     "bookingState, bookingDate, numberOfCustomers, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
 
-            stmt.setString(1, cst.getId());
-            stmt.setString(2, cst.getName());
-            stmt.setString(3, normalizeDate(cst.getBirthDay()));
-            stmt.setString(4, cst.getPhoneNumber());
-            stmt.setString(5, cst.getEmail());
-            stmt.setString(6, cst.getTourBookings());
-            stmt.setString(7, cst.getBookingState());
-            stmt.setString(8, normalizeDate(cst.getBookingDate()));
-            stmt.setInt(9, cst.getNumberOfCustomers());
-            stmt.setBigDecimal(10, cst.getPrice());
+            stmt.setString(1, cst.getName());
+            stmt.setString(2, normalizeDate(cst.getBirthDay()));
+            stmt.setString(3, cst.getPhoneNumber());
+            stmt.setString(4, cst.getEmail());
+            stmt.setString(5, cst.getTourBooking());
+            stmt.setString(6, cst.getBookingState());
+            stmt.setString(7, normalizeDate(cst.getBookingDate()));
+            stmt.setInt(8, cst.getNumberOfCustomers());
+            stmt.setBigDecimal(9, cst.getPrice());
 
             int rows = stmt.executeUpdate();
             if (rows > 0) {
