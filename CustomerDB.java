@@ -12,30 +12,7 @@ public class CustomerDB {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
-    public static String generateNextId() {
-        try (Connection conn = getConnection()) {
-            String sql = "SELECT MAX(id) AS max_id FROM customer";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            String nextId;
-            if (rs.next() && rs.getString("max_id") != null) {
-                String lastId = rs.getString("max_id");
-                int num = Integer.parseInt(lastId.substring(2));
-                nextId = String.format("KH%03d", num + 1);
-            } else {
-                nextId = "KH001";
-            }
-
-            rs.close();
-            stmt.close();
-            return nextId;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
+    // Chuẩn hóa ngày
     private static String normalizeDate(String date) {
         if (date == null || date.trim().isEmpty())
             return null;
@@ -51,20 +28,27 @@ public class CustomerDB {
         };
 
         for (String pattern : patterns) {
-            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(pattern);
-            LocalDate res = LocalDate.parse(date, inputFormatter);
-            return res.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            try {
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern(pattern);
+                LocalDate res = LocalDate.parse(date, inputFormatter);
+                return res.format(DateTimeFormatter.ISO_LOCAL_DATE);
+            } catch (Exception ignore) {
+            }
         }
+
+        System.err.println("Không thể parse ngày: " + date);
         return null;
     }
 
-    public static String findTourId(String name, String date) {
+    // Tìm tourId khi biết tourName và dayStart và numberOfDay
+    public static String findTourId(String tourName, String dayStart, double numberOfDay) {
         String tourId = null;
         try (Connection conn = getConnection()) {
-            String sql = "SELECT tourId FROM tour WHERE tourName = ? AND dayStart = ?";
+            String sql = "SELECT tourId FROM tour WHERE tourName = ? AND dayStart = ? AND numberOfDay = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, name);
-            stmt.setString(2, normalizeDate(date));
+            stmt.setString(1, tourName);
+            stmt.setString(2, normalizeDate(dayStart));
+            stmt.setDouble(3, numberOfDay);
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -105,30 +89,10 @@ public class CustomerDB {
         return price;
     }
 
-    public static void setBookingState(String tourId) {
-        try (Connection conn = getConnection()) {
-            String sql = "UPDATE customer SET bookingState = 'Confirmed' WHERE tourId = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, tourId);
-
-            int rows = stmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Thay đổi giá trị thành công!");
-            } else {
-                System.out.println("Không tìm thấy tour phù hợp.");
-            }
-
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Lỗi khi cập nhật bookingState: " + e.getMessage());
-        }
-    }
-
     public static void addCustomer(Customer cst) {
         try (Connection conn = getConnection()) {
-            String sql = "INSERT INTO customer (id, name, birthday, phoneNumber, email, tourBookings, " +
-                    "bookingState, bookingDate, numberOfCustomers, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO customer (name, birthday, phoneNumber, email, tourBooking, " +
+                    "bookingState, bookingDate, numberOfCustomers, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, cst.getId());
@@ -155,25 +119,4 @@ public class CustomerDB {
             System.out.println("Lỗi khi thêm khách hàng: " + e.getMessage());
         }
     }
-
-    public static void deleteCustomerById(String id) {
-        try (Connection conn = getConnection()) {
-            String sql = "DELETE FROM customer WHERE id = ?";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, id);
-
-            int rows = stmt.executeUpdate();
-            if (rows > 0) {
-                System.out.println("Xóa khách hàng thành công!");
-            } else {
-                System.out.println("Không tìm thấy khách hàng với ID: " + id);
-            }
-
-            stmt.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Lỗi khi xóa khách hàng: " + e.getMessage());
-        }
-    }
 }
-
