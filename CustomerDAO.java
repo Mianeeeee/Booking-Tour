@@ -3,7 +3,7 @@ import java.sql.*;
 import java.time.format.*;
 import java.time.LocalDate;
 
-public class CustomerDB {
+public class CustomerDAO {
     private static final String URL = "jdbc:mysql://localhost:3306/booking_tour_test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
     private static final String USER = "root";
     private static final String PASSWORD = "miane7755nW";
