@@ -214,7 +214,7 @@ class TourWindow extends JFrame {
             // Có tourId tìm price/người (giá một người, đây không phải phép chia) -> tổng
             // price = price/người *số người
             // Gán Object. cus.setTourBooking(tourId) ....
-            customer.setTourBookings(tourId);
+            customer.setTourBooking(tourId);
             customer.setBookingDate(date);
             customer.setNumberOfCustomers(Integer.parseInt(numPeople));
         });
