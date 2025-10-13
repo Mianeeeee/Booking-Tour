@@ -35,7 +35,7 @@ public class CustomerForm extends JFrame {
         JButton btnSubmit = new JButton("Nhập");
         btnSubmit.addActionListener(e -> {
             String name = txtName.getText();
-            String birthday = txtBirthday.getText();
+            String birthday = CustomerDAO.chuanHoaNgayHienThi(txtBirthday.getText());
             String phone = txtPhone.getText();
             String email = txtEmail.getText();
             // Set các giá trị cho Customer
@@ -52,9 +52,13 @@ public class CustomerForm extends JFrame {
                 statusLabel.setForeground(Color.RED);
                 return;
             }
-            Customer customer = new Customer("", name, birthday, phone, email,
-                    "", "", "", 0, new BigDecimal("0.00"));
+            Customer customer = new Customer();
             Customer.add(customer);
+
+            customer.setName(name);
+            customer.setBirthday(birthday);
+            customer.setPhoneNumber(phone);
+            customer.setEmail(email);
 
             // Truyền Object vào
             // new TourWindow(cus);
@@ -195,13 +199,14 @@ class TourWindow extends JFrame {
             String date = (String) cbDate.getSelectedItem();
             String numPeople = cbNumber.getSelectedItem().toString();
             Double numDays = (Double) cbNumberOfDays.getSelectedItem();
+            String tourName = (String) cbTour.getSelectedItem();
 
             JOptionPane.showMessageDialog(this,
                     "Họ và tên: " + name +
                             "\nNgày sinh: " + birthday +
                             "\nSố điện thoại: " + phone +
                             "\nEmail: " + email +
-                            "\nTên tour: " + tour +
+                            "\nTên tour: " + tourName +
                             "\nNgày khởi hành: " + date +
                             "\nSố ngày: " + numDays +
                             "\nSố người đi: " + numPeople + " người",
@@ -209,7 +214,7 @@ class TourWindow extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE);
 
             // Từ tour (tên) với date tìm ra tourId
-            String tourId = CustomerDAO.findTourId(tour, date, numDays);
+            String tourId = CustomerDAO.findTourId(tourName, date, numDays);
 
             // Có tourId tìm price/người (giá một người, đây không phải phép chia) -> tổng
             // price = price/người *số người
