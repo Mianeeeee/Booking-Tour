@@ -33,7 +33,7 @@ public class Customer extends Human {
     }
 
     // Get
-    public String getTourBookings() {
+    public String getTourBooking() {
         return this.tourBookings;
     }
 
@@ -54,7 +54,7 @@ public class Customer extends Human {
     }
 
     // Set
-    public void setTourBookings(String tourBookings) {
+    public void setTourBooking(String tourBookings) {
         this.tourBookings = tourBookings;
     }
 
