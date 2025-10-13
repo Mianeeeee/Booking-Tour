@@ -20,11 +20,10 @@ public class CustomerDAO {
         date = date.trim().replace("/", "-");
 
         String[] patterns = {
-                "yyyy-MM-dd",
-                "dd-MM-yyyy",
-                "d-M-yyyy",
-                "ddMMyyyy",
-                "dMyyyy"
+                "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy", "dd/MM/yyyy",
+                "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy", "dd-MM-yyyy",
+                "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd", "yyyy/MM/dd",
+                "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "yyyy-MM-dd"
         };
 
         for (String pattern : patterns) {
@@ -38,6 +37,33 @@ public class CustomerDAO {
 
         System.err.println("Không thể parse ngày: " + date);
         return null;
+    }
+
+    public static String chuanHoaNgayHienThi(String d) {
+        String[] patterns = {
+                "d/M/yyyy", "d/MM/yyyy", "dd/M/yyyy", "dd/MM/yyyy",
+                "d-M-yyyy", "d-MM-yyyy", "dd-M-yyyy", "dd-MM-yyyy",
+                "yyyy/M/d", "yyyy/MM/d", "yyyy/M/dd", "yyyy/MM/dd",
+                "yyyy-M-d", "yyyy-MM-d", "yyyy-M-dd", "yyyy-MM-dd"
+        };
+        LocalDate date = null;
+        for (String pattern : patterns) {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+                date = LocalDate.parse(d, formatter);
+                break;
+            } catch (DateTimeParseException e) {
+
+            }
+        }
+
+        if (date != null) {
+            d = date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        } else {
+            System.out.println("Định dạng ngày sinh không hợp lệ: " + d);
+        }
+
+        return d;
     }
 
     // Tìm tourId khi biết tourName và dayStart và numberOfDays
@@ -96,7 +122,7 @@ public class CustomerDAO {
             PreparedStatement stmt = conn.prepareStatement(sql);
 
             stmt.setString(1, cst.getName());
-            stmt.setString(2, normalizeDate(cst.getBirthDay()));
+            stmt.setString(2, normalizeDate(cst.getBirthday()));
             stmt.setString(3, cst.getPhoneNumber());
             stmt.setString(4, cst.getEmail());
             stmt.setString(5, cst.getTourBooking());
